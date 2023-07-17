@@ -44,4 +44,4 @@ def convert_coordinates():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run()
+    app.run('3.80.28.78','3011')
