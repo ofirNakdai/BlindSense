@@ -44,4 +44,4 @@ def convert_coordinates():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host = '172.31.24.125', port = '3011')
+    app.run(host = '0.0.0.0', port = 3011)
