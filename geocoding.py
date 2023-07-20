@@ -44,4 +44,4 @@ def convert_coordinates():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host = '54.174.34.157')
+    app.run(host = '172.31.24.125')
