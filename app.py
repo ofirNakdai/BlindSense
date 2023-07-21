@@ -1,13 +1,16 @@
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, send_file, url_for, jsonify
+from gtts import gTTS
+import os
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'audio_files'
 
-@app.route('/convert', methods=['GET'])
-def convert_coordinates():
+def convert_coordinates(longitude, latitude):
     try:
-        longitude = request.args.get('lon')
-        latitude = request.args.get('lat')
+        
+        #longitude = request.args.get('lon')
+        #latitude = request.args.get('lat')
         if not longitude or not latitude:
             return jsonify({'error': 'Invalid coordinates.'}), 400
 
@@ -36,12 +39,46 @@ def convert_coordinates():
                 address = address + json_data['address']['city'] + ','
             if json_data['address']['country'] is not None: 
                 address = address + json_data['address']['country']
-            return jsonify({'address': address}), 200
+            #return jsonify({'address': address}), 200
+            return address
         
         return jsonify({'error': 'Address not found.', 'res_status': f'{response.status_code}'}), 404
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/convert', methods=['GET'])
+def convert_to_speech():
+    text = request.args.get('text')
+    
+    longtitute = request.args.get('lon')
+    latitude = request.args.get('lat')
+    
+    adress = convert_coordinates(longtitute, latitude)
+    text = f'Hello Ofir, your current location is {adress}'
+    #textHeb = f'שלום אופיר, המיקום הנוכחי שלך הוא {adress}'
+    
+    if longtitute is not None and latitude is not None:
+        tts = gTTS(text, lang='en')
+        audio_file = 'output.mp3'
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], audio_file)
+        
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Create the directory if it doesn't exist
+        
+        tts.save(file_path)
+        
+        # Generate the play request URL
+        play_url = url_for('play_audio', filename=audio_file, _external=True)
+        
+        return play_url, 200
+        #return file_path
+    else:
+        return 'No text provided.', 400
+
+@app.route('/play/<path:filename>', methods=['GET'])
+def play_audio(filename):
+    return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0', port = 3011)
