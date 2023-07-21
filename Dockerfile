@@ -5,7 +5,6 @@ RUN pip install flask
 RUN pip install requests
 RUN pip install gunicorn
 RUN pip install gtts
-RUN pip install os
 
 #ENV FLASK_APP=geocoding.py
 #ENV FLASK_RUN_HOST=3.80.28.78
