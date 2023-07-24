@@ -57,7 +57,6 @@ def convert_to_speech():
     latitude = request.args.get('lat')
     
     adress = convert_coordinates(longtitute, latitude)
-    return adress,200
     text = f'Hello Ofir, your current location is {adress}'
     #textHeb = f'שלום אופיר, המיקום הנוכחי שלך הוא {adress}'
     
@@ -72,9 +71,7 @@ def convert_to_speech():
         
         # Generate the play request URL
         play_url = url_for('play_audio', filename=audio_file, _external=True)
-        
         return play_url, 200
-        #return file_path
     else:
         return 'No text provided.', 400
 
