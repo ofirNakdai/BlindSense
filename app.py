@@ -29,15 +29,16 @@ def convert_coordinates(longitude, latitude):
         # Parse the response to get the address
         if response.status_code == 200:
             address = ""
-            if json_data['address']['road'] is not None:
+            addressKeys = json_data['address'].keys()
+            if 'road' in addressKeys:
                 address = address + json_data['address']['road'] + ','
-            elif json_data['address']['street'] is not None:
+            elif 'street' in addressKeys:
                 address = address + json_data['address']['street'] + ','
-            if json_data['address']['house_number'] is not None: 
+            if 'house_number' in addressKeys:                 
                 address = address + json_data['address']['house_number'] + ','
-            if json_data['address']['city'] is not None: 
+            if 'city' in addressKeys: 
                 address = address + json_data['address']['city'] + ','
-            if json_data['address']['country'] is not None: 
+            if 'country' in addressKeys: 
                 address = address + json_data['address']['country']
             #return jsonify({'address': address}), 200
             return address
@@ -56,6 +57,7 @@ def convert_to_speech():
     latitude = request.args.get('lat')
     
     adress = convert_coordinates(longtitute, latitude)
+    return adress,200
     text = f'Hello Ofir, your current location is {adress}'
     #textHeb = f'שלום אופיר, המיקום הנוכחי שלך הוא {adress}'
     

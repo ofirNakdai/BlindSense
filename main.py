@@ -46,7 +46,7 @@ def convert_to_speech():
     longtitute = request.args.get('longitude')
     latitude = request.args.get('latitude')
     adress = convert_coordinates(longtitute, latitude)
-    return adress,200
+    #return adress,200
     text = f'Hello Ofir, your current location is {adress}'
     #textHeb = f'שלום אופיר, המיקום הנוכחי שלך הוא {adress}'
     
