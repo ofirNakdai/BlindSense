@@ -1,0 +1,19 @@
+version: '3'
+services:
+  app-service:
+    build: ./app
+    restart: always
+    volumes: 
+      - type: bind
+        source: ./app
+        target: /app
+    ports: 
+      - "3011:3011"
+
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo
+    ports: 
+      - "27017:27017"

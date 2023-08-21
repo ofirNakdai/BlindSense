@@ -3,7 +3,7 @@ from flask import Flask, request, send_file, url_for, jsonify
 from gtts import gTTS
 import requests
 
-
+        
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'audio_files'
 
@@ -28,9 +28,7 @@ def convert_coordinates(longitude, latitude):
             if results:
                 address = results[0]['formatted_address']
                 print(address)
-                return address
-                #return jsonify({'address': address})
-                
+                return address                
         
         return jsonify({'error': 'Address not found.'}), 404
     
@@ -46,9 +44,7 @@ def convert_to_speech():
     longtitute = request.args.get('longitude')
     latitude = request.args.get('latitude')
     adress = convert_coordinates(longtitute, latitude)
-    #return adress,200
     text = f'Hello Ofir, your current location is {adress}'
-    #textHeb = f'שלום אופיר, המיקום הנוכחי שלך הוא {adress}'
     
     if longtitute is not None and latitude is not None:
         tts = gTTS(text, lang='en')
@@ -66,6 +62,7 @@ def convert_to_speech():
         #return file_path
     else:
         return 'No text provided.', 400
+
 
 @app.route('/play/<path:filename>', methods=['GET'])
 def play_audio(filename):
