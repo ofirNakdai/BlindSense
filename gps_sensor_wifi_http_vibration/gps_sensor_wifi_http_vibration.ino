@@ -1,5 +1,5 @@
 #include <ESP8266WiFi.h>
-#include <WiFiManager.h>
+//#include <WiFiManager.h>
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
 #include <ESP8266HTTPClient.h>
@@ -18,8 +18,10 @@
 
 
 #ifndef STASSID
-#define STASSID "Ofirnakdai"
-#define STAPSK  "12345678"
+//#define STASSID "Ofirnakdai"
+//#define STAPSK  "12345678"
+#define STASSID "realme 7 Pro"
+#define STAPSK  "af56c0d4740f"
 #endif
 
 const char* ssid = STASSID;
@@ -41,7 +43,7 @@ const int button2Pin = D4;
 //WiFiManager wifiManager;
 
 // Define maximum distance for triggering the motor (in meters)
-const int maxDistance = 40;
+const int maxDistance = 50;
 
 // Define variables for ultrasonic sensor
 long duration1, duration2;
@@ -124,8 +126,7 @@ void sendHTTP()
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
-  snprintf(URL, sizeof(URL), "http://54.242.241.34:3011/convert?lon=%f&lat=%f", lon,lat);
-  String url = "http://54.157.17.145:3011/convert?lon=" + String(lon) + "&lat=" + String(lat);
+  snprintf(URL, sizeof(URL), "http://54.167.91.83:3011/convert?lon=%f&lat=%f", lon,lat);// need to fix url
   if(WiFi.status() == WL_CONNECTED)
   {
     HTTPClient http;
@@ -209,7 +210,7 @@ void sendHTTP()
 }*/
 
 //MP3:
-const char *URL="http://54.242.241.34:3011/play/output.mp3";
+const char *URL="http://54.167.91.83:3011/play/output.mp3";// need to fix url
 
 AudioGeneratorMP3 *mp3 = nullptr;
 AudioFileSourceICYStream *file = nullptr;
