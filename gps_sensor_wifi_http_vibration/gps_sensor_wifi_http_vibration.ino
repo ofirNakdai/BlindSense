@@ -40,7 +40,15 @@ const int motorPin = D8;
 const int button1Pin = D7;
 const int button2Pin = D4;
 
+unsigned long pressStartTime = 0;
+bool buttonPressed = false;
+bool sosSent = false;
+
 //WiFiManager wifiManager;
+
+
+//FOR CLIENT ID:
+const uint32_t chipId = ESP.getChipId();
 
 // Define maximum distance for triggering the motor (in meters)
 const int maxDistance = 50;
@@ -144,6 +152,50 @@ void sendHTTP()
       String payload = http.getString();
       Serial.println(payload);
       
+    }
+    else
+    {
+      Serial.print("Error Code:"); 
+      Serial.println(httpResponseCode);
+    }
+    http.end();
+  }
+  else
+  {
+    Serial.println("Not Connected to WiFi");
+  }
+}
+
+
+void sendSOSHTTP()//TODO: validate that server parse it, queryparam are in GET not in POST
+{
+  float lat,lon;
+  printLocationFromGPS(&lat, &lon);
+
+  char URL[216];
+  snprintf(URL, sizeof(URL), "http://54.167.91.83:3011/sos");
+  
+  if(WiFi.status() == WL_CONNECTED)
+  {
+    HTTPClient http;
+
+    http.begin(URL);
+
+    // Set the content type to application/x-www-form-urlencoded for POST  
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // Create the POST data as a string
+    String postData = "lon=" + String(lon, 6) + "&lat=" + String(lat, 6) + "&clientID=" + String(chipId);
+
+    // Send the POST request with the POST data
+    int httpResponseCode = http.POST(postData);
+
+    if(httpResponseCode > 0)
+    {
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String payload = http.getString();
+      Serial.println(payload);
     }
     else
     {
@@ -382,8 +434,34 @@ void loop() {
   if (button2State == LOW) 
   {
     Serial.println("Button 2 Presed!!!!");
-    delay(1000);
+    sendSOSHTTP();
+    //delay(1000);
   }
+
+  // Read the button state
+//   bool currentButtonState = digitalRead(buttonPin2);
+
+//   if (currentButtonState == LOW && !buttonPressed) {
+//     // Button was pressed
+//     buttonPressed = true;
+//     pressStartTime = millis();
+//   }
+
+//   if (currentButtonState == HIGH && buttonPressed) {
+//     // Button was released
+//     buttonPressed = false;
+
+//     unsigned long pressDuration = millis() - pressStartTime;
+
+//     if (pressDuration >= 1000) { // Adjust the time threshold as needed
+//       if (!sosSent) {
+//         sendSOS(); // Call the sendSOS function
+//         sosSent = true;
+//       }
+//     } else {
+//       sosSent = false;
+//     }
+//   }
 
   //MP3:
     static int lastms = 0;
