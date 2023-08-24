@@ -40,6 +40,10 @@ const int motorPin = D8;
 const int button1Pin = D7;
 const int button2Pin = D4;
 
+unsigned long pressStartTime = 0;
+bool buttonPressed = false;
+bool sosSent = false;
+
 //WiFiManager wifiManager;
 
 
@@ -191,7 +195,6 @@ void sendSOSHTTP()//TODO: validate that server parse it, queryparam are in GET n
       Serial.println(httpResponseCode);
       String payload = http.getString();
       Serial.println(payload);
-      
     }
     else
     {
@@ -433,6 +436,31 @@ void loop() {
     sendSOSHTTP();
     //delay(1000);
   }
+
+  // Read the button state
+//   bool currentButtonState = digitalRead(buttonPin2);
+
+//   if (currentButtonState == LOW && !buttonPressed) {
+//     // Button was pressed
+//     buttonPressed = true;
+//     pressStartTime = millis();
+//   }
+
+//   if (currentButtonState == HIGH && buttonPressed) {
+//     // Button was released
+//     buttonPressed = false;
+
+//     unsigned long pressDuration = millis() - pressStartTime;
+
+//     if (pressDuration >= 1000) { // Adjust the time threshold as needed
+//       if (!sosSent) {
+//         sendSOS(); // Call the sendSOS function
+//         sosSent = true;
+//       }
+//     } else {
+//       sosSent = false;
+//     }
+//   }
 
   //MP3:
     static int lastms = 0;
