@@ -28,8 +28,6 @@ const char* ssid = STASSID;
 const char* password = STAPSK;
 
 
-
-
 const int trigPin1 = 12; // D6
 const int echoPin1 = 14; // D5
 
@@ -42,8 +40,8 @@ const int button2Pin = D4;
 
 unsigned long pressStartTime = 0;
 bool buttonPressed = false;
-bool sosSent = false;
-string serverIP = "54.173.52.224";
+bool sosSent = false;
+
 //WiFiManager wifiManager;
 
 
@@ -135,7 +133,7 @@ void sendHTTP()
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
-  snprintf(URL, sizeof(URL), "http://%s:3011/convert?lon=%f&lat=%f", serverIP, lon,lat);// need to fix url
+  snprintf(URL, sizeof(URL), "http://54.173.52.224:3011/convert?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
   if(WiFi.status() == WL_CONNECTED)
   {
     HTTPClient http;
@@ -166,28 +164,22 @@ void sendHTTP()
   }
 }
 
-void sendSOSHTTP()//TODO: validate that server parse it, queryparam are in GET not in POST
+
+void sendSOSHTTP()
 {
-  float lat,lon;
+    float lat,lon;
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
-  snprintf(URL, sizeof(URL), "http://%s:3011/sos", serverIP);
-  
+  snprintf(URL, sizeof(URL), "http://54.173.52.224:3011/sos?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
   if(WiFi.status() == WL_CONNECTED)
   {
     HTTPClient http;
+    WiFiClient client;
 
-    http.begin(URL);
-
-    // Set the content type to application/x-www-form-urlencoded for POST  
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-    // Create the POST data as a string
-    String postData = "lon=" + String(lon, 6) + "&lat=" + String(lat, 6) + "&clientID=" + String(chipId);
-
-    // Send the POST request with the POST data
-    int httpResponseCode = http.POST(postData);
+    // send http request
+    http.begin(client, URL);
+    int httpResponseCode = http.POST("");
 
     if(httpResponseCode > 0)
     {
@@ -195,6 +187,7 @@ void sendSOSHTTP()//TODO: validate that server parse it, queryparam are in GET n
       Serial.println(httpResponseCode);
       String payload = http.getString();
       Serial.println(payload);
+      
     }
     else
     {
@@ -209,61 +202,9 @@ void sendSOSHTTP()//TODO: validate that server parse it, queryparam are in GET n
   }
 }
 
-/*void playMP3(String url)
-{
-  AudioGeneratorMP3 *mp3;
-  AudioFileSourceHTTPStream *file;
-  AudioFileSourceBuffer *buff;
-  AudioOutputI2SNoDAC *out;
-  
-  // Create the HTTP stream normally
-  file = new AudioFileSourceHTTPStream(url);
-  // Create a buffer using that stream
-  buff = new AudioFileSourceBuffer(file, 2048);
-  out = new AudioOutputI2SNoDAC();
-  mp3 = new AudioGeneratorMP3();
-  // Pass in the *buffer*, not the *http stream* to enable buffering
-  mp3->begin(buff, out);
-}*/
-/*void playFile()
-{
-  Serial.println("in PlayFile func");
-  if (WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    WiFiClient client;
-
-    // send http request
-    http.begin(client, "https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-0.mp3");
-    //http.begin(client, "https://jsonplaceholder.typicode.com/posts");
-    Serial.println("Sending http request");
-
-    int httpCode = http.GET();
-    Serial.println("http request sent " + httpCode );
-    delay(1000);
-
-    Serial.println("HTTP code: " + httpCode);
-    delay(1000);
-
-    if (httpCode == HTTP_CODE_OK) {
-      Serial.println("http ok");
-
-      while (http.available()) {
-        mp3Serial.write(http.read());
-        Serial.println(http.read());
-      }
-      mp3Serial.write(0xFE);
-      mp3Serial.write(0xFF);
-    }
-
-    http.end();
-  }
-
-  delay(1000);
-}*/
 
 //MP3:
-const char URL[216];
-snprintf(URL, sizeof(URL), "http://%s:3011/play/output.mp3", serverIP);// need to fix url
+const char *URL="http://54.173.52.224:3011/play/output.mp3";// need to fix url
 
 AudioGeneratorMP3 *mp3 = nullptr;
 AudioFileSourceICYStream *file = nullptr;
@@ -334,16 +275,10 @@ void setup() {
 
   //MP3:
   audioLogger = &Serial;
-  // file = new AudioFileSourceICYStream(URL);
-  // file->RegisterMetadataCB(MDCallback, (void*)"ICY");
-  // buff = new AudioFileSourceBuffer(file, 2048);
-  // buff->RegisterStatusCB(StatusCallback, (void*)"buffer");
+
   out = new AudioOutputI2SNoDAC();
   mp3 = new AudioGeneratorMP3();
   mp3->RegisterStatusCB(StatusCallback, (void*)"mp3");
-  //mp3->begin(buff, out);
-
-
 
 
   pinMode(trigPin1, OUTPUT);
@@ -355,11 +290,10 @@ void setup() {
   pinMode(button2Pin, INPUT_PULLUP);
 }
 
-String serverPath = "https://maps.googleapis.com/maps/api/geocode/json?latlng=34.000,32.000&key=AIzaSyBPggICP_7W1DWoLv39wRRm4EzPqmVngUQ";
 
 void loop() {
+
   // Send ultrasonic signal
-  
   // Turn on motor if distance is less than maxDistance
   double currDistance = calculate_distance();
   Serial.print("curr: ");
@@ -380,10 +314,10 @@ void loop() {
   }
 
   int button1State = digitalRead(button1Pin);
-  if (button1State == LOW) 
+  
+  if (button1State == LOW) //BUTTON 1 PRESSED
   {
     Serial.println("Button 1 pressed!");
-    //printLocationFromGPS();
     sendHTTP();
 
     //MP3:
@@ -412,58 +346,41 @@ void loop() {
     mp3->RegisterStatusCB(StatusCallback, (void*)"mp3");
     mp3->begin(buff, out);
 
-
-
-
-
-
-
-    // file = new AudioFileSourceICYStream(URL);
-    // buff = new AudioFileSourceBuffer(file, 2048);
-    // mp3->begin(buff, out);
-    
-    
     
     turn_on_off_motor(0);
     Serial.print("Free sketch space: ");
     Serial.println(ESP.getFreeSketchSpace());
     Serial.print("Free Heap space: ");
     Serial.println(ESP.getFreeHeap());
-    //playFile();
   } 
   
-  int button2State = digitalRead(button2Pin);
-  if (button2State == LOW) 
-  {
-    Serial.println("Button 2 Presed!!!!");
-    sendSOSHTTP();
-    //delay(1000);
+  bool button2State = digitalRead(button2Pin);
+
+  if (button2State == LOW && !buttonPressed)// BUTTON 2 PRESSED
+   {
+    // Button was pressed
+    Serial.print("Button 2 Pressed!");
+    buttonPressed = true;
+    pressStartTime = millis();
   }
 
-  // Read the button state
-//   bool currentButtonState = digitalRead(buttonPin2);
+  if (button2State == HIGH && buttonPressed) // BUTTON 2 RELEASED
+  {
+    buttonPressed = false;
 
-//   if (currentButtonState == LOW && !buttonPressed) {
-//     // Button was pressed
-//     buttonPressed = true;
-//     pressStartTime = millis();
-//   }
+    unsigned long pressDuration = millis() - pressStartTime;
+    Serial.print("time pressed:     ");
+    Serial.println(pressDuration);
 
-//   if (currentButtonState == HIGH && buttonPressed) {
-//     // Button was released
-//     buttonPressed = false;
-
-//     unsigned long pressDuration = millis() - pressStartTime;
-
-//     if (pressDuration >= 1000) { // Adjust the time threshold as needed
-//       if (!sosSent) {
-//         sendSOS(); // Call the sendSOS function
-//         sosSent = true;
-//       }
-//     } else {
-//       sosSent = false;
-//     }
-//   }
+    if (pressDuration >= 2000) { // Adjust the time threshold as needed
+      if (!sosSent) {
+        sendSOSHTTP(); // Call the sendSOS function
+        sosSent = true;
+      }
+    } else {
+      sosSent = false;
+   }
+  }
 
   //MP3:
     static int lastms = 0;
