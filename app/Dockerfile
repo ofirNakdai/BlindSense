@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:alpine3.17
 WORKDIR /app
 COPY . .
 RUN pip install flask
@@ -9,9 +9,9 @@ RUN pip install pymongo
 RUN pip install twilio
 
 
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_RUN_PORT=3011
+# ENV FLASK_APP=app.py
+# ENV FLASK_RUN_HOST=0.0.0.0
+# ENV FLASK_RUN_PORT=3011
 
 #CMD ["gunicorn", "-b", "0.0.0.0:3011", "app:app"]
 
