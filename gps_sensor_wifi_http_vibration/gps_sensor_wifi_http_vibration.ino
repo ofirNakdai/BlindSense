@@ -101,6 +101,7 @@ void turn_on_off_motor(int power)
 void printLocationFromGPS(float* lat_out, float* lon_out)
 {
   int printingFlag = 0;
+  
   while(!printingFlag)
   {
     while (gpsSerial.available() > 0) // used to be a while loop

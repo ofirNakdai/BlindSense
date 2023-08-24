@@ -18,7 +18,7 @@ registryCollection = db["registry"]
 
 message_service_sid = 'MG496c156df0604232a3adca70d4e5403d'
 account_sid = "AC8fd9a3078755856172774ae1a019f239"
-auth_token = "acdb6dca193d0bb810af15d6002530a5"
+#auth_token = "8c30544d97b7373251c5a8500edf2121"
 phone_number = '+12518424307'
 
 gmail_pass = 'fsbtiqrrrwyheysw'
@@ -72,7 +72,7 @@ def create_google_maps_url(latitude, longitude):
 
 
 def send_phone_message(phoneNumber, messageBody):
-    client = Client(account_sid, auth_token) 
+    #client = Client(account_sid, auth_token) 
  
     message = client.messages.create( 
                                 #from_=phone_number, 
@@ -223,7 +223,7 @@ def send_sos():
                 f"link to his current location: {locationLink}"
                 
     send_email_message2(contactEmail, message)
-    send_phone_message(contactPhone, message)
+    #send_phone_message(contactPhone, message)
     
     if result:
         return jsonify(message), 200
