@@ -15,4 +15,4 @@ ENV FLASK_RUN_PORT=3011
 
 #CMD ["gunicorn", "-b", "0.0.0.0:3011", "app:app"]
 
-CMD ["flask", "run"]
+#CMD ["flask", "run"]
