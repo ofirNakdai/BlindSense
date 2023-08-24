@@ -43,7 +43,7 @@ const int button2Pin = D4;
 unsigned long pressStartTime = 0;
 bool buttonPressed = false;
 bool sosSent = false;
-
+string serverIP = "54.173.52.224";
 //WiFiManager wifiManager;
 
 
@@ -135,7 +135,7 @@ void sendHTTP()
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
-  snprintf(URL, sizeof(URL), "http://54.167.91.83:3011/convert?lon=%f&lat=%f", lon,lat);// need to fix url
+  snprintf(URL, sizeof(URL), "http://%s:3011/convert?lon=%f&lat=%f", serverIP, lon,lat);// need to fix url
   if(WiFi.status() == WL_CONNECTED)
   {
     HTTPClient http;
@@ -166,14 +166,13 @@ void sendHTTP()
   }
 }
 
-
 void sendSOSHTTP()//TODO: validate that server parse it, queryparam are in GET not in POST
 {
   float lat,lon;
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
-  snprintf(URL, sizeof(URL), "http://54.167.91.83:3011/sos");
+  snprintf(URL, sizeof(URL), "http://%s:3011/sos", serverIP);
   
   if(WiFi.status() == WL_CONNECTED)
   {
@@ -263,7 +262,8 @@ void sendSOSHTTP()//TODO: validate that server parse it, queryparam are in GET n
 }*/
 
 //MP3:
-const char *URL="http://54.167.91.83:3011/play/output.mp3";// need to fix url
+const char URL[216];
+snprintf(URL, sizeof(URL), "http://%s:3011/play/output.mp3", serverIP);// need to fix url
 
 AudioGeneratorMP3 *mp3 = nullptr;
 AudioFileSourceICYStream *file = nullptr;
@@ -305,7 +305,9 @@ void StatusCallback(void *cbData, int code, const char *string)
 void setup() {
   Serial.begin(9600);
   gpsSerial.begin(9600);
-  Serial.println();
+
+  Serial.println("Chip ID: " + String(chipId));
+  Serial.println("Chip ID: " + chipId);
  
  // wifiManager.autoConnect("AutoConnectAP");
   // Serial.println("Connected to Wi-Fi!");
