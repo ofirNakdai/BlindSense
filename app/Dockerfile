@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . .
 RUN pip install flask
 RUN pip install requests
-# RUN pip install gunicorn
+RUN pip install gunicorn
 RUN pip install gtts
 RUN pip install pymongo
 RUN pip install twilio
