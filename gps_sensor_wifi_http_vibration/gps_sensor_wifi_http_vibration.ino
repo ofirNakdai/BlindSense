@@ -246,7 +246,9 @@ void StatusCallback(void *cbData, int code, const char *string)
 void setup() {
   Serial.begin(9600);
   gpsSerial.begin(9600);
-  Serial.println();
+
+  Serial.println("Chip ID: " + String(chipId));
+  Serial.println("Chip ID: " + chipId);
  
  // wifiManager.autoConnect("AutoConnectAP");
   // Serial.println("Connected to Wi-Fi!");
