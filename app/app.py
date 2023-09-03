@@ -138,9 +138,11 @@ def convert_to_speech():
     result = registryCollection.find_one({"_id": clientID}, {"_id": 0})
     clientName = result['clientName'];
     
-    adress = convert_coordinates(longtitute, latitude)
-    
-    text = f'Hello {clientName}, your current location is {adress}'
+    if longtitute is not -1 and latitude is not -1:
+        adress = convert_coordinates(longtitute, latitude)    
+        text = f'Hello {clientName}, your current location is {adress}'
+    else:
+        text = f'Hello {clientName}, your current location is not available'
     
     if longtitute is not None and latitude is not None:
         tts = gTTS(text, lang='en')
@@ -214,10 +216,7 @@ def send_sos():
     longtitute = request.args.get('lon')
     latitude = request.args.get('lat')
     
-    # Convert coordinates to address
-    adress = convert_coordinates(longtitute, latitude);
-    
-    # Get data from the MongoDB collection
+       # Get data from the MongoDB collection
     result = registryCollection.find_one({"_id": clientID}, {"_id": 0})
     clientName = result['clientName'];
     contactName = result['contactName'];
@@ -225,9 +224,18 @@ def send_sos():
     contactEmail = result['contactEmail'];
     locationLink = create_google_maps_url(latitude, longtitute);
     
-    message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. His current location is: {adress}." \
-                "Please contact him as soon as possible. " \
-                f"link to his current location: {locationLink}"
+    
+    if longtitute is not -1 and latitude is not -1:
+        # Convert coordinates to address
+        adress = convert_coordinates(longtitute, latitude); 
+        message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. His current location is: {adress}." \
+                    "Please contact him as soon as possible. " \
+                    f"link to his current location: {locationLink}"
+    else:
+        message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. His current location is not available." \
+                    "Please contact him as soon as possible. " 
+                
+                
                 
     send_email_message2(contactEmail, message)
     send_phone_message(contactPhone, message)

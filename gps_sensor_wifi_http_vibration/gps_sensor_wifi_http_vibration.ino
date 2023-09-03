@@ -27,7 +27,9 @@
 const char* ssid = STASSID;
 const char* password = STAPSK;
 
-
+    float lat = -1;
+    float lon = -1;
+    
 const int trigPin1 = 12; // D6
 const int echoPin1 = 14; // D5
 
@@ -107,25 +109,62 @@ void turn_on_off_motor(int power)
 void printLocationFromGPS(float* lat_out, float* lon_out)
 {
   int printingFlag = 0;
-  
-  while(!printingFlag)
+  unsigned long startTime = millis(); // Record the start time
+  bool isBreaked = false; 
+
+  while (!printingFlag && !isBreaked)
   {
-    while (gpsSerial.available() > 0) // used to be a while loop
+    while (gpsSerial.available() > 0)
     {
       if (gps.encode(gpsSerial.read()))
       {
         float latitude, longitude;
         gps.f_get_position(lat_out, lon_out);
-        
+
         Serial.print("Latitude: ");
         Serial.println(*(lat_out), 6);
         Serial.print("Longitude: ");
         Serial.println(*(lon_out), 6);
         printingFlag = 1;
       }
+
+          // Check if 2 seconds have passed
+    if (millis() - startTime >= 2000)
+    {
+      // Break the loop if 2 seconds have passed
+      isBreaked = true;
+      Serial.println("~~~~~~~~~~~~~~~~~~~GPS NOT AVAILABLE~~~~~~~~~~~~~~~~~~~~~~~~");      
+      break;
     }
+    }
+
+
   }
 }
+
+
+// void printLocationFromGPS(float* lat_out, float* lon_out)
+// {
+//   int printingFlag = 0;
+  
+//   while(!printingFlag)
+//   {
+//     while (gpsSerial.available() > 0) // used to be a while loop
+//     {
+//       if (gps.encode(gpsSerial.read()))
+//       {
+//         float latitude, longitude;
+//         gps.f_get_position(lat_out, lon_out);
+        
+//         Serial.print("Latitude: ");
+//         Serial.println(*(lat_out), 6);
+//         Serial.print("Longitude: ");
+//         Serial.println(*(lon_out), 6);
+//         printingFlag = 1;
+//       }
+//     }
+//   }
+// }
 
 void sendHTTP()
 {
@@ -133,7 +172,7 @@ void sendHTTP()
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
-  snprintf(URL, sizeof(URL), "http://54.173.52.224:3011/convert?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
+  snprintf(URL, sizeof(URL), "http://54.81.92.67:3011/convert?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
   if(WiFi.status() == WL_CONNECTED)
   {
     HTTPClient http;
@@ -164,14 +203,13 @@ void sendHTTP()
   }
 }
 
-
 void sendSOSHTTP()
 {
-    float lat,lon;
+
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
-  snprintf(URL, sizeof(URL), "http://54.173.52.224:3011/sos?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
+  snprintf(URL, sizeof(URL), "http://54.81.92.67:3011/sos?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
   if(WiFi.status() == WL_CONNECTED)
   {
     HTTPClient http;
@@ -204,7 +242,7 @@ void sendSOSHTTP()
 
 
 //MP3:
-const char *URL="http://54.173.52.224:3011/play/output.mp3";// need to fix url
+const char *URL="http://54.81.92.67:3011/play/output.mp3";// need to fix url
 
 AudioGeneratorMP3 *mp3 = nullptr;
 AudioFileSourceICYStream *file = nullptr;
