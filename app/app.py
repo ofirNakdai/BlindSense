@@ -167,7 +167,10 @@ def play_audio(filename):
 ############################### registry #############################################
 
 @app.route('/register', methods=['POST'])
-def register():   
+def register():
+    docID = request.args.get('clientID')
+    doc = registryCollection.find_one({"_id": docID}, {"_id" : 0}) 
+    isUpdate = False
     
     data = {
             "clientName": request.args.get('clientName'),
@@ -177,13 +180,18 @@ def register():
             "_id": request.args.get('clientID')
         }
 
+    if doc is None:
     # Insert the data into the MongoDB collection
-    result = registryCollection.insert_one(data)
-
-    if result.inserted_id:
-        return jsonify({"message": "Data inserted successfully"}), 201
+        result = registryCollection.insert_one(data)
     else:
-        return jsonify({"message": "Failed to insert data"}), 500    
+        result = registryCollection.update_one({"_id": docID}, {"$set": data})
+        isUpdate = True
+
+    if isUpdate:
+        return jsonify({"message": "Data updated successfully"}), 200
+    else:
+        return jsonify({"message": "Data inserted successfully"}), 201
+    
     
 @app.route('/register', methods=['GET'])
 def get_register():
@@ -197,7 +205,6 @@ def get_register():
         return jsonify(result), 200
     else:
         return jsonify({"message": "Client not found"}), 404
-
 
 ############################### SOS #############################################
 @app.route('/sos', methods=['POST'])
@@ -223,7 +230,7 @@ def send_sos():
                 f"link to his current location: {locationLink}"
                 
     send_email_message2(contactEmail, message)
-    #send_phone_message(contactPhone, message)
+    send_phone_message(contactPhone, message)
     
     if result:
         return jsonify(message), 200
