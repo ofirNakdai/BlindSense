@@ -172,7 +172,7 @@ void sendHTTP()
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
-  snprintf(URL, sizeof(URL), "http://54.81.92.67:3011/convert?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
+  snprintf(URL, sizeof(URL), "http://54.160.254.28:3011/convert?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
   if(WiFi.status() == WL_CONNECTED)
   {
     HTTPClient http;
@@ -209,7 +209,7 @@ void sendSOSHTTP()
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
-  snprintf(URL, sizeof(URL), "http://54.81.92.67:3011/sos?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
+  snprintf(URL, sizeof(URL), "http://54.160.254.28:3011/sos?lon=%f&lat=%f&clientID=%u", lon,lat, chipId);// need to fix url
   if(WiFi.status() == WL_CONNECTED)
   {
     HTTPClient http;
@@ -242,7 +242,7 @@ void sendSOSHTTP()
 
 
 //MP3:
-const char *URL="http://54.81.92.67:3011/play/output.mp3";// need to fix url
+const char *URL="http://54.160.254.28:3011/play/output.mp3";// need to fix url
 
 AudioGeneratorMP3 *mp3 = nullptr;
 AudioFileSourceICYStream *file = nullptr;
