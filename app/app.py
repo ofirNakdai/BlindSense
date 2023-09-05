@@ -238,7 +238,7 @@ def send_sos():
     longtitute = request.args.get('lon')
     latitude = request.args.get('lat')
     
-    app.logger.info(f'ClientID: {clientID}, longtitute: {longtitute}, latitude: {latitude}')
+    app.logger.debug(f'ClientID: {clientID}, longtitute: {longtitute}, latitude: {latitude}')
     
        # Get data from the MongoDB collection
     result = registryCollection.find_one({"_id": clientID}, {"_id": 0})
@@ -249,7 +249,7 @@ def send_sos():
     locationLink = create_google_maps_url(latitude, longtitute);
     
     
-    if longtitute != -1.000000 and latitude != -1.000000:
+    if float(longtitute) != -1.000000 and float(latitude) != -1.000000:
         # Convert coordinates to address
         adress = convert_coordinates(longtitute, latitude); 
         message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. His current location is: {adress}." \

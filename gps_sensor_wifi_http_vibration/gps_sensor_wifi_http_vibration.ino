@@ -416,13 +416,8 @@ void loop() {
     Serial.println(pressDuration);
 
     if (pressDuration >= 2000) { // Adjust the time threshold as needed
-      if (!sosSent) {
         sendSOSHTTP(); // Call the sendSOS function
-        sosSent = true;
-      }
-    } else {
-      sosSent = false;
-   }
+
   }
 
   //MP3:

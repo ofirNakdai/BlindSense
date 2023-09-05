@@ -31,16 +31,23 @@ namespace BlindSenseRegistry
 
             using (HttpClient client = new HttpClient())
             {
-                string apiUrl = $"{ApiUrl}/register?clientName={name}&contactName={contactName}&contactPhone={contactPhone}&contactEmail={contactEmail}&clientID={chipID}";
-                HttpResponseMessage response = await client.PostAsync(apiUrl, null);
+                try
+                {
+                    string apiUrl = $"{ApiUrl}/register?clientName={name}&contactName={contactName}&contactPhone={contactPhone}&contactEmail={contactEmail}&clientID={chipID}";
+                    HttpResponseMessage response = await client.PostAsync(apiUrl, null);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    MessageBox.Show("Data submitted successfully!");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show("Data submitted successfully!");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to submit data.");
+                    }
                 }
-                else
+                catch(Exception ex)
                 {
-                    MessageBox.Show("Failed to submit data.");
+                    MessageBox.Show(ex.Message);
                 }
             }
         }
