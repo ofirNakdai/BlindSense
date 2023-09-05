@@ -34,11 +34,14 @@ gmail_acount = 'blindsense2023@gmail.com'
 
 
 def convert_coordinates(longitude, latitude):
+    app.logger.info(f'Converting coordinates: {longitude}, {latitude}')
+    
     try:
         
         #longitude = request.args.get('lon')
         #latitude = request.args.get('lat')
         if not longitude or not latitude:
+            app.logger.error('Invalid coordinates.')
             return jsonify({'error': 'Invalid coordinates.'}), 400
 
         # Make a request to the Geocoding API
@@ -66,8 +69,10 @@ def convert_coordinates(longitude, latitude):
             if 'country' in addressKeys: 
                 address = address + json_data['address']['country']
             #return jsonify({'address': address}), 200
+            app.logger.info(f'Address: {address}')
             return address
         
+        app.logger.error(f'Address not found. Response status code: {response.status_code}')
         return jsonify({'error': 'Address not found.', 'res_status': f'{response.status_code}'}), 404
     
     except Exception as e:
@@ -81,13 +86,15 @@ def create_google_maps_url(latitude, longitude):
 
 def send_phone_message(phoneNumber, messageBody):
     #client = Client(account_sid, auth_token) 
- 
+    app.logger.info(f'Sending message to {phoneNumber}')
     message = client.messages.create( 
                                 #from_=phone_number, 
                                 messaging_service_sid=message_service_sid, 
                                 body=messageBody,      
                                 to=phoneNumber 
                             ) 
+    
+    
  
     print(message.sid)
 
@@ -112,7 +119,7 @@ def send_email_message(recipient_email, messageBody):
 
 def send_email_message2(recipient_email, messageBody):
     # Set up the sender and recipient addresses
-
+    app.logger.info(f'Sending email to {recipient_email}')
     # Create the email message
     message = MIMEMultipart()
     message["From"] = gmail_acount
@@ -137,6 +144,7 @@ def send_email_message2(recipient_email, messageBody):
 @app.route('/convert', methods=['GET'])
 def convert_to_speech():
     text = request.args.get('text')
+    app.logger.info(f'Converting text to speech, text: {text}')
     
     
     clientID = request.args.get('clientID')
@@ -146,11 +154,11 @@ def convert_to_speech():
     result = registryCollection.find_one({"_id": clientID}, {"_id": 0})
     clientName = result['clientName'];
     
-    if longtitute != -1 and latitude != -1:
+    if longtitute != -1.000000 and latitude != -1.000000:
         adress = convert_coordinates(longtitute, latitude)    
         text = f'Hello {clientName}, your current location is {adress}'
     else:
-        text = f'Hello {clientName}, your current location != available'
+        text = f'Hello {clientName}, your current location is not available'
     
     if longtitute != None and latitude != None:
         tts = gTTS(text, lang='en')
@@ -193,8 +201,10 @@ def register():
     if doc is None:
     # Insert the data into the MongoDB collection
         result = registryCollection.insert_one(data)
+        app.logger.info(f'Registering new client: {data}')
     else:
         result = registryCollection.update_one({"_id": docID}, {"$set": data})
+        app.logger.info(f'Updating client: {data}')
         isUpdate = True
 
     if isUpdate:
@@ -219,10 +229,13 @@ def get_register():
 ############################### SOS #############################################
 @app.route('/sos', methods=['POST'])
 def send_sos():
+    app.logger.info(f'Sending SOS')
     # Get the data from the request
     clientID = request.args.get('clientID')
     longtitute = request.args.get('lon')
     latitude = request.args.get('lat')
+    
+    app.logger.info(f'ClientID: {clientID}, longtitute: {longtitute}, latitude: {latitude}')
     
        # Get data from the MongoDB collection
     result = registryCollection.find_one({"_id": clientID}, {"_id": 0})
@@ -244,7 +257,7 @@ def send_sos():
                     "Please contact him as soon as possible. " 
                 
                 
-                
+    app.logger.info(f'Sending message: {message}, to {contactName}')            
     send_email_message2(contactEmail, message)
     send_phone_message(contactPhone, message)
     
