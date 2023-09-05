@@ -136,6 +136,8 @@ bool printLocationFromGPS(float* lat_out, float* lon_out)
       // Break the loop if 2 seconds have passed
       isBreaked = true;
       Serial.println("~~~~~~~~~~~~~~~~~~~GPS NOT AVAILABLE~~~~~~~~~~~~~~~~~~~~~~~~");
+      lat_out = -1;
+      lon_out = -1;
       return false;      
       break;
     }

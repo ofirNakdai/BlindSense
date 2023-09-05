@@ -2,6 +2,7 @@ import requests
 from flask import Flask, request, send_file, url_for, jsonify
 from gtts import gTTS
 import os
+import logging
 import pymongo
 from twilio.rest import Client
 import smtplib
@@ -11,6 +12,13 @@ from email.mime.text import MIMEText
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'audio_files'
+
+log_file = os.path.join(os.path.dirname(__file__), 'app.log')
+
+# Configure the logger
+logging.basicConfig(filename=log_file, level=logging.DEBUG,
+                    format='%(asctime)s [%(levelname)s] - %(message)s')
+
 
 client = pymongo.MongoClient("mongodb://mongo:27017/")
 db = client["blindSenseDB"]
@@ -138,13 +146,13 @@ def convert_to_speech():
     result = registryCollection.find_one({"_id": clientID}, {"_id": 0})
     clientName = result['clientName'];
     
-    if longtitute is not -1 and latitude is not -1:
+    if longtitute != -1 and latitude != -1:
         adress = convert_coordinates(longtitute, latitude)    
         text = f'Hello {clientName}, your current location is {adress}'
     else:
-        text = f'Hello {clientName}, your current location is not available'
+        text = f'Hello {clientName}, your current location != available'
     
-    if longtitute is not None and latitude is not None:
+    if longtitute != None and latitude != None:
         tts = gTTS(text, lang='en')
         audio_file = 'output.mp3'
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], audio_file)
@@ -225,7 +233,7 @@ def send_sos():
     locationLink = create_google_maps_url(latitude, longtitute);
     
     
-    if longtitute is not -1 and latitude is not -1:
+    if longtitute != -1 and latitude != -1:
         # Convert coordinates to address
         adress = convert_coordinates(longtitute, latitude); 
         message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. His current location is: {adress}." \
