@@ -144,7 +144,6 @@ def send_email_message2(recipient_email, messageBody):
 @app.route('/convert', methods=['GET'])
 def convert_to_speech():
     text = request.args.get('text')
-    app.logger.info(f'Converting text to speech, text: {text}')
     
     
     clientID = request.args.get('clientID')
@@ -153,11 +152,15 @@ def convert_to_speech():
     
     result = registryCollection.find_one({"_id": clientID}, {"_id": 0})
     clientName = result['clientName'];
+    app.logger.info(f'Converting text to speech, for client: {clientName}, lon: {longtitute}, lat: {latitude}')
     
-    if longtitute != -1.000000 and latitude != -1.000000:
+    if longtitute != -1.0 and latitude != -1.0:
+        ifi = (longtitute != -1.0 )
+        app.logger.info(f'Converting coordinates: {longtitute}, {latitude}, if:{ifi}')
         adress = convert_coordinates(longtitute, latitude)    
         text = f'Hello {clientName}, your current location is {adress}'
     else:
+        app.logger.info(f'Coordinates are -1')
         text = f'Hello {clientName}, your current location is not available'
     
     if longtitute != None and latitude != None:
