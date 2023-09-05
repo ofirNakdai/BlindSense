@@ -106,7 +106,7 @@ void turn_on_off_motor(int power)
   }
 }
 
-void printLocationFromGPS(float* lat_out, float* lon_out)
+bool printLocationFromGPS(float* lat_out, float* lon_out)
 {
   int printingFlag = 0;
   unsigned long startTime = millis(); // Record the start time
@@ -126,6 +126,8 @@ void printLocationFromGPS(float* lat_out, float* lon_out)
         Serial.print("Longitude: ");
         Serial.println(*(lon_out), 6);
         printingFlag = 1;
+        isBreaked = true;
+        return true;
       }
 
           // Check if 2 seconds have passed
@@ -133,7 +135,8 @@ void printLocationFromGPS(float* lat_out, float* lon_out)
     {
       // Break the loop if 2 seconds have passed
       isBreaked = true;
-      Serial.println("~~~~~~~~~~~~~~~~~~~GPS NOT AVAILABLE~~~~~~~~~~~~~~~~~~~~~~~~");      
+      Serial.println("~~~~~~~~~~~~~~~~~~~GPS NOT AVAILABLE~~~~~~~~~~~~~~~~~~~~~~~~");
+      return false;      
       break;
     }
     }
@@ -168,7 +171,6 @@ void printLocationFromGPS(float* lat_out, float* lon_out)
 
 void sendHTTP()
 {
-  float lat,lon;
   printLocationFromGPS(&lat, &lon);
 
   char URL[216];
