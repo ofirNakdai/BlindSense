@@ -154,8 +154,8 @@ def convert_to_speech():
     clientName = result['clientName'];
     app.logger.info(f'Converting text to speech, for client: {clientName}, lon: {longtitute}, lat: {latitude}')
     
-    if longtitute != -1.0 and latitude != -1.0:
-        ifi = (longtitute != -1.0 )
+    if float(longtitute) != -1.0 and float(latitude) != -1.0:
+        ifi = (longtitute != "-1.000000" )
         app.logger.info(f'Converting coordinates: {longtitute}, {latitude}, if:{ifi}')
         adress = convert_coordinates(longtitute, latitude)    
         text = f'Hello {clientName}, your current location is {adress}'
