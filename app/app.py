@@ -246,7 +246,7 @@ def send_sos():
     locationLink = create_google_maps_url(latitude, longtitute);
     
     
-    if longtitute != -1 and latitude != -1:
+    if longtitute != -1.000000 and latitude != -1.000000:
         # Convert coordinates to address
         adress = convert_coordinates(longtitute, latitude); 
         message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. His current location is: {adress}." \
