@@ -9,26 +9,29 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+# ~~~~~~~~~~ configurations ~~~~~~~~~~
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'audio_files'
 
-log_file = os.path.join(os.path.dirname(__file__), 'app.log')
-
 # Configure the logger
+log_file = os.path.join(os.path.dirname(__file__), 'app.log')
 logging.basicConfig(filename=log_file, level=logging.DEBUG,
                     format='%(asctime)s [%(levelname)s] - %(message)s')
 
 
+# configuring MongoDB
 client = pymongo.MongoClient("mongodb://mongo:27017/")
 db = client["blindSenseDB"]
 registryCollection = db["registry"]
 
+# Twilio credentials
 message_service_sid = 'MG496c156df0604232a3adca70d4e5403d'
 account_sid = "AC8fd9a3078755856172774ae1a019f239"
 #auth_token = "8c30544d97b7373251c5a8500edf2121"
 phone_number = '+12518424307'
 
+# Email credentials
 gmail_pass = 'fsbtiqrrrwyheysw'
 gmail_acount = 'blindsense2023@gmail.com'
 
@@ -92,32 +95,11 @@ def send_phone_message(phoneNumber, messageBody):
                                 messaging_service_sid=message_service_sid, 
                                 body=messageBody,      
                                 to=phoneNumber 
-                            ) 
-    
-    
- 
+                            )
     print(message.sid)
 
-def send_email_message(recipient_email, messageBody):
-    # creates SMTP session
-    s = smtplib.SMTP('smtp.gmail.com', 587)
-    
-    # start TLS for security
-    s.starttls()
-    
-    # Authentication
-    s.login("blindsense2023@gmail.com", "fsbtiqrrrwyheysw")
-    
-    # message to be sent
-    message = messageBody
-    
-    # sending the mail
-    s.sendmail("blindsense2023@gmail.com", recipient_email, message)
-    
-    # terminating the session
-    s.quit()
 
-def send_email_message2(recipient_email, messageBody):
+def send_email_message(recipient_email, messageBody):
     # Set up the sender and recipient addresses
     app.logger.info(f'Sending email to {recipient_email}')
     # Create the email message
@@ -261,7 +243,7 @@ def send_sos():
                 
                 
     app.logger.info(f'Sending message: {message}, to {contactName}')            
-    send_email_message2(contactEmail, message)
+    send_email_message(contactEmail, message)
     send_phone_message(contactPhone, message)
     
     if result:

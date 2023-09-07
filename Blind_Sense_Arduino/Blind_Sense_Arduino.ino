@@ -18,18 +18,24 @@
 
 
 #ifndef STASSID
-//#define STASSID "Ofirnakdai"
-//#define STAPSK  "12345678"
 #define STASSID "realme 7 Pro"
 #define STAPSK  "af56c0d4740f"
 #endif
 
+//    ~~~~~~~~ GLOBALS ~~~~~~~~
+
+// wifi credentials
 const char* ssid = STASSID;
 const char* password = STAPSK;
 
-    float lat = -1;
-    float lon = -1;
-    
+// GPS 
+SoftwareSerial gpsSerial(D2, D1);  // RX, TX pins     D2 = GPS TX,  D1 = GPS RX
+TinyGPS gps;
+float lat = -1;
+float lon = -1;
+
+
+// chip pins
 const int trigPin1 = 12; // D6
 const int echoPin1 = 14; // D5
 
@@ -44,20 +50,20 @@ unsigned long pressStartTime = 0;
 bool buttonPressed = false;
 bool sosSent = false;
 
-//WiFiManager wifiManager;
 
 
-//FOR CLIENT ID:
+//CLIENT ID:
 const uint32_t chipId = ESP.getChipId();
 
-// Define maximum distance for triggering the motor (in meters)
+// Define maximum distance for triggering the vibration motor (in cm)
 const int maxDistance = 50;
 
 // Define variables for ultrasonic sensor
 long duration1, duration2;
 int distance1, distance2;
-SoftwareSerial gpsSerial(D2, D1);  // RX, TX pins     D2 = GPS TX,  D1 = GPS RX
-TinyGPS gps;
+
+
+
 
 double calculate_distance()
 {
@@ -149,29 +155,6 @@ void printLocationFromGPS(float* lat_out, float* lon_out)
 }
 
 
-// void printLocationFromGPS(float* lat_out, float* lon_out)
-// {
-//   int printingFlag = 0;
-  
-//   while(!printingFlag)
-//   {
-//     while (gpsSerial.available() > 0) // used to be a while loop
-//     {
-//       if (gps.encode(gpsSerial.read()))
-//       {
-//         float latitude, longitude;
-//         gps.f_get_position(lat_out, lon_out);
-        
-//         Serial.print("Latitude: ");
-//         Serial.println(*(lat_out), 6);
-//         Serial.print("Longitude: ");
-//         Serial.println(*(lon_out), 6);
-//         printingFlag = 1;
-//       }
-//     }
-//   }
-// }
-
 void sendHTTP()
 {
   printLocationFromGPS(&lat, &lon);
@@ -246,7 +229,7 @@ void sendSOSHTTP()
 }
 
 
-//MP3:
+//~~~~~~~~~~~~~~~~~~~~~~~ MP3 ~~~~~~~~~~~~~~~~~~~~~~~
 const char *URL="http://18.215.158.198:3011/play/output.mp3";// need to fix url
 
 AudioGeneratorMP3 *mp3 = nullptr;
@@ -280,7 +263,8 @@ void StatusCallback(void *cbData, int code, const char *string)
   Serial.printf("STATUS(%s) '%d' = '%s'\n", ptr, code, s1);
   Serial.flush();
 }
-//MP3^
+
+// ~~~~~~~~~~~~~~~~~~~~~~~ MP3^ ~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -290,18 +274,7 @@ void setup() {
   Serial.begin(9600);
   gpsSerial.begin(9600);
 
-  Serial.println("Chip ID: " + String(chipId));
-  Serial.println("Chip ID: " + chipId);
- 
- // wifiManager.autoConnect("AutoConnectAP");
-  // Serial.println("Connected to Wi-Fi!");
-  // Serial.print("SSID: ");
-  // Serial.println(WiFi.SSID());
-  // Serial.print("IP address: ");
-  // Serial.println(WiFi.localIP());
-
   Serial.println("Connecting to WiFi");
-
   WiFi.disconnect();
   WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_STA);
@@ -324,6 +297,7 @@ void setup() {
   mp3->RegisterStatusCB(StatusCallback, (void*)"mp3");
 
 
+  // pins settup
   pinMode(trigPin1, OUTPUT);
   pinMode(trigPin2, OUTPUT);
   pinMode(echoPin1, INPUT);
@@ -343,9 +317,9 @@ void loop() {
   Serial.print(currDistance);
   Serial.print("        Max: ");
   Serial.print(maxDistance);
-  bool i = currDistance <= maxDistance;
+  bool difference = currDistance <= maxDistance;
   Serial.print("        ");
-  Serial.println(i);
+  Serial.println(difference);
   
   if( currDistance <= maxDistance)
   {
@@ -356,8 +330,10 @@ void loop() {
     turn_on_off_motor(0);
   }
 
-  int button1State = digitalRead(button1Pin);
-  
+
+
+
+  int button1State = digitalRead(button1Pin);  
   if (button1State == LOW) //BUTTON 1 PRESSED
   {
     Serial.println("Button 1 pressed!");
@@ -391,14 +367,11 @@ void loop() {
 
     
     turn_on_off_motor(0);
-    Serial.print("Free sketch space: ");
-    Serial.println(ESP.getFreeSketchSpace());
-    Serial.print("Free Heap space: ");
-    Serial.println(ESP.getFreeHeap());
   } 
   
-  bool button2State = digitalRead(button2Pin);
 
+
+  bool button2State = digitalRead(button2Pin);
   if (button2State == LOW && !buttonPressed)// BUTTON 2 PRESSED
    {
     // Button was pressed
@@ -417,6 +390,7 @@ void loop() {
 
     if (pressDuration >= 2000) { // Adjust the time threshold as needed
         sendSOSHTTP(); // Call the sendSOS function
+    }
 
   }
 
