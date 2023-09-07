@@ -15,7 +15,7 @@ namespace BlindSenseRegistry
 {
     public partial class Form1 : Form
     {
-        private string ApiUrl = "http://18.215.158.198:3011";
+        private string ApiUrl = "http://3.95.64.127:3011";
         public Form1()
         {
             InitializeComponent();

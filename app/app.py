@@ -234,11 +234,11 @@ def send_sos():
     if float(longtitute) != -1.000000 and float(latitude) != -1.000000:
         # Convert coordinates to address
         adress = convert_coordinates(longtitute, latitude); 
-        message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. His current location is: {adress}." \
+        message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. The current location is: {adress}." \
                     "Please contact him as soon as possible. " \
                     f"link to his current location: {locationLink}"
     else:
-        message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. His current location is not available." \
+        message = f"Hello {contactName}, {clientName} triggered the SOS button on BlindSense. The current location is not available." \
                     "Please contact him as soon as possible. " 
                 
                 
